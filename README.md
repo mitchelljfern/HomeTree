@@ -1,16 +1,24 @@
 # HomeTree website: start here
 
-This is the playbook for any chat that needs to change the HomeTree website and push it live. Read it first, then restore the code, make the change, deploy, check, and save the code back to the project.
+This is the playbook for any chat that changes the HomeTree website. Read it first.
+
+**The short version:** the code lives on GitHub. Every change goes to the `dev` branch, which builds a free preview. Nothing reaches the live site until Mitchell says "publish," and then everything waiting on `dev` goes live in one paid deploy.
+
+**How Mitchell works with this:**
+- He asks for a change in any HomeTree chat ("add a guide on hot tubs," "move the free guide button up").
+- The chat makes it on `dev`, checks it, pushes it and replies with the preview link: https://dev--hometree-hosts.netlify.app
+- Changes stack up on `dev` for free until he says **"publish"** (or "push it live," "make it live"). Never publish without that.
+- If he asks what's waiting to go live, list the unpublished changes (see "See what's unpublished").
 
 ## The essentials
 
 | What | Value |
 | --- | --- |
 | Live site | https://hometree-hosts.netlify.app (no custom domain yet) |
-| Preview site (free) | https://dev--hometree-hosts.netlify.app (the `dev` branch) |
-| Source code | GitHub `mitchelljfern/hometree`. `main` = live, `dev` = work in progress. |
-| Netlify project | `hometree-hosts`, site ID `8fde7cce-b759-44a9-ae48-bb8868072d32`, owner mitchell@socialupgrades.com. Deploys from GitHub. |
-| Backup of the code | Project doc `site/hometree-site-source.json` (every file packed into one JSON; refreshed after each publish) |
+| Preview site (free) | https://dev--hometree-hosts.netlify.app (the `dev` branch). Shows a yellow "Preview of unpublished changes" bar and is hidden from search engines. |
+| Source code | GitHub `mitchelljfern/hometree` (https://github.com/mitchelljfern/hometree). `main` = live, `dev` = work in progress. |
+| Netlify project | `hometree-hosts`, site ID `8fde7cce-b759-44a9-ae48-bb8868072d32`, owner mitchell@socialupgrades.com. Linked to GitHub: `main` deploys to production, `dev` is a branch deploy, pull requests into `main` get free Deploy Previews. |
+| Backup of the code | Project doc `site/hometree-site-source.json` (every file packed into one JSON). Matches `main`; refreshed after each publish. Only for chats without GitHub access. |
 | Products (Gear page) | Google Sheet "HomeTree Gear (website products)", ID `1X-P5tUg0Eaocs5F8apzoqM3Wjjp8zkqYhm_oImEpVFc`, tab `Products` |
 | Email list | Resend segment "HomeTree subscribers", ID `4676fed2-3d23-44a1-8630-e6eadbf992cc`; contact property `signup_source` |
 | Brand rules | Project docs `brand/HomeTree-Brand-Guide.md` and `brand/HomeTree-Brand-Tokens.md` |
@@ -29,14 +37,52 @@ On Netlify's credit-based plans, each successful **production** deploy (anything
 
 ## How to update the site (the whole loop)
 
-1. **Get the code.** Attach the repo (`add_repo` with owner `mitchelljfern`, repo `hometree`, access `push`), clone it, then `git checkout dev` (create it from `main` if it's missing). If GitHub isn't available in the chat, restore the project backup instead (see "Restore from the project backup").
-2. **Make the change.** Use the file map below to find the right file.
-3. **Build and preview locally.** `node scripts/build.mjs`. Output goes to `dist/`. Serve it (`python3 -m http.server 8080 --directory dist`) and screenshot phone (390px) and desktop (1440px) widths with Playwright (see "Screenshots"). Fix problems here, not with extra deploys.
-4. **Push to `dev`.** Commit and `git push origin dev`. Netlify builds the free preview in a minute or two. Send Mitchell the preview link.
-5. **Publish only when Mitchell says so.** Merge `dev` into `main` and push `main`. That is one production deploy for the whole batch. Then check the live pages (`curl` for 200s, screenshots).
-6. **Refresh the project backup after publishing.** Run `node scripts/pack.mjs`, then call the Projects tool `project_write` with `path: "site/hometree-site-source.json"` and `local_path` pointing at `.pack/hometree-site-source.json` in the clone (the file goes straight up without entering the chat). If this README changed, also write it to `site/README.md`.
+1. **Get the code.** Attach the repo with the `add_repo` tool (owner `mitchelljfern`, repo `hometree`, access `push`) and clone it as that tool says. A shallow clone only tracks `main`, so fix that and switch to `dev` right after cloning:
 
-Do not deploy with the Netlify CLI or the connector's `deploy-site` tool while the repo is linked. GitHub is the only path to Netlify, so the live site always matches `main`.
+   ```bash
+   cd hometree
+   git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+   git fetch origin
+   git checkout dev            # tracks origin/dev
+   ```
+
+   If GitHub isn't available in the chat, restore the project backup instead (see "Restore from the project backup"), but tell Mitchell, because changes made that way can't be published through GitHub from that chat.
+2. **Make the change** on `dev`. Use the file map below to find the right file.
+3. **Build and check locally.** `node scripts/build.mjs` builds to `dist/` (local builds include the preview bar; production builds don't). Serve it (`python3 -m http.server 8080 --directory dist`) and screenshot phone (390px) and desktop (1440px) widths with Playwright (see "Screenshots"). Fix problems here, not with extra deploys.
+4. **Push to `dev`.**
+
+   ```bash
+   git add -A && git commit -m "Short description of the change"
+   git push origin dev
+   ```
+
+   The preview at https://dev--hometree-hosts.netlify.app updates in about 20 to 60 seconds. Confirm it loads (`curl` it), then send Mitchell the preview link with a one-line summary of what changed.
+5. **Publish only when Mitchell says so.** This is the only step that costs money, so it covers everything waiting on `dev` at once:
+
+   ```bash
+   git fetch origin
+   git checkout main && git merge --ff-only origin/main && git merge --ff-only dev
+   git push origin main
+   git checkout dev
+   ```
+
+   If `--ff-only` fails, `main` has a commit that `dev` lacks: merge `main` into `dev` first, push `dev`, then retry. Optionally, open a pull request from `dev` into `main` first; Netlify posts a free Deploy Preview link on it. After pushing `main`, check the live pages (`curl` for 200s, screenshots of anything that changed).
+6. **Refresh the project backup after publishing.** On `main`, run `node scripts/pack.mjs`, then call the Projects tool `project_write` with `path: "site/hometree-site-source.json"` and `local_path` pointing at `.pack/hometree-site-source.json` in the clone (the file goes straight up without entering the chat). If this README changed, also write it to `site/README.md`.
+
+Rules:
+- Do not deploy with the Netlify CLI or the connector's `deploy-site` tool. GitHub is the only path to Netlify, so the live site always matches `main`.
+- Never commit directly to `main`. Everything goes through `dev`.
+- Commit messages end with the attribution lines the session asks for, if any.
+
+## See what's unpublished
+
+```bash
+git fetch origin
+git log --oneline origin/main..origin/dev     # commits on dev that aren't live yet
+git diff --stat origin/main origin/dev        # files changed
+```
+
+If the list is empty, the preview and the live site are the same.
 
 ## Restore from the project backup
 
@@ -126,7 +172,6 @@ Check at 390x844 (isMobile, deviceScaleFactor 2) and 1440x900. Elements with cla
 
 ## Open items (as of October 2026)
 
-- Link the Netlify project to the GitHub repo (Mitchell, in the Netlify dashboard) and turn on branch deploys for `dev`. Until then, deploys still go through the Netlify connector.
 - Share the products Google Sheet as "Anyone with the link: Viewer" so live edits show on the site.
 - Free PDF guide not built yet. When it is, add a Resend automation that emails it to new contacts in the HomeTree subscribers segment.
 - No custom domain yet. When bought: add it in Netlify, update `SITE_URL` in `scripts/build.mjs` and the fallback URL in `subscribe.mts`, and verify the domain in Resend for `MAIL_FROM`.
