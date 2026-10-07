@@ -8,6 +8,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
 const SITE_URL = process.env.URL || 'https://hometree-hosts.netlify.app';
 const AMAZON_TAG = process.env.AMAZON_TAG || '';
+// Netlify sets CONTEXT to production, branch-deploy or deploy-preview. Local builds count as preview.
+const IS_PREVIEW = (process.env.CONTEXT || 'local') !== 'production';
 const YEAR = 2026;
 
 // Generate browser icon module used by card.js, then import shared modules.
@@ -127,9 +129,11 @@ function layout({ title, description, pathname, body, active = '', scripts = [],
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/site.css?v=${BUILD_ID}">
 ${head}
+${IS_PREVIEW ? '<meta name="robots" content="noindex, nofollow">' : ''}
 </head>
 <body class="has-bottom-nav" ${bodyAttrs}>
 <a class="skip" href="#main">Skip to content</a>
+${IS_PREVIEW ? `<div class="preview-bar">Preview of unpublished changes. <a href="https://hometree-hosts.netlify.app${esc(pathname)}">See the live page</a></div>` : ''}
 <header class="site-header">
   <div class="container">
     <a class="logo" href="/" aria-label="HomeTree home"><img src="/assets/mark-green.svg" alt="" width="34" height="34"><span class="word">Home<em>Tree</em></span></a>
@@ -627,5 +631,5 @@ copyDir('data', 'data');
 fs.writeFileSync(path.join(DIST, 'site.webmanifest'), JSON.stringify({ name: 'HomeTree', short_name: 'HomeTree', start_url: '/', display: 'standalone', background_color: '#ffffff', theme_color: '#539800', icons: [{ src: '/assets/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }, { src: '/assets/icon-512.png', sizes: '512x512', type: 'image/png' }] }));
 const urls = pages.filter((p) => p.pathname !== '/404/').map((p) => `<url><loc>${SITE_URL}${p.pathname}</loc></url>`).join('');
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
-fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+fs.writeFileSync(path.join(DIST, 'robots.txt'), IS_PREVIEW ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 console.log(`Built ${pages.length} pages to dist/ (${PRODUCTS.length} products)`);

@@ -640,3 +640,7 @@ html { overflow-x: clip; }
 .menu-feature { align-self: stretch; }
 .fg > * { min-width: 0; }
 .fg-copy { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); } .form-card { min-width: 0; }
+
+/* Preview banner (dev branch and deploy previews only) */
+.preview-bar { background: var(--sun-soft); color: var(--ink); font-size: 13px; line-height: 18px; font-weight: 600; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+.preview-bar a { color: var(--green-deep); }
