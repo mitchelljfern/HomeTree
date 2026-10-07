@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@800&family=Montserrat:wght@500;600&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:630px;overflow:hidden}
+body{
+  position:relative;
+  background:
+    radial-gradient(900px 520px at 50% 118%, #e3f0cf 0%, rgba(234,244,220,0) 70%),
+    radial-gradient(700px 420px at 50% -20%, #ffffff 0%, rgba(255,255,255,0) 70%),
+    #f4f8ee;
+  font-family:Montserrat, sans-serif;
+  color:#1f2a1a;
+  display:flex;align-items:center;justify-content:center;
+}
+/* faint oversized marks in the corners for depth */
+.ghost{position:absolute;width:470px;height:470px;opacity:.055}
+.ghost.l{left:-170px;bottom:-190px;transform:rotate(-8deg)}
+.ghost.r{right:-150px;top:-200px;transform:rotate(10deg)}
+.card{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center}
+.mark{width:132px;height:132px;margin-bottom:26px;filter:drop-shadow(0 10px 22px rgba(60,110,0,.22))}
+.word{font-family:Outfit;font-weight:800;font-size:112px;line-height:1;letter-spacing:-3px}
+.word .t{color:#539800}
+.rule{width:72px;height:6px;border-radius:3px;background:#f4b41a;margin:30px 0 28px}
+.line{font-weight:500;font-size:35px;line-height:1.4;color:#3d4a34;max-width:1010px;letter-spacing:-.2px}
+.line b{font-weight:600;color:#1f2a1a}
+.band{position:absolute;left:0;right:0;bottom:0;height:14px;background:linear-gradient(90deg,#3c6e00,#539800 50%,#68af00)}
+</style></head>
+<body>
+<img class="ghost l" src="../assets/mark-green.svg" alt="">
+<img class="ghost r" src="../assets/mark-green.svg" alt="">
+<div class="card">
+  <img class="mark" src="../assets/mark-green.svg" alt="">
+  <div class="word">Home<span class="t">Tree</span></div>
+  <div class="rule"></div>
+  <p class="line">Free guides, tools and templates to help <b>Airbnb and VRBO hosts</b> earn more and get better reviews.</p>
+</div>
+<div class="band"></div>
+</body></html>

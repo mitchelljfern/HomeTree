@@ -98,7 +98,12 @@ function menuPanel() {
 </nav>`;
 }
 
-function layout({ title, description, pathname, body, active = '', scripts = [], bodyAttrs = '', image = ph('hero', 1200) + '&h=630', head = '' }) {
+// Default social sharing card (1200x630). Guide articles use their own photo instead.
+// Source design: scripts/og-card.html. Re-render it with Playwright if the copy or logo changes.
+const SHARE_IMAGE = SITE_URL + '/assets/og-image.png';
+const SHARE_ALT = 'HomeTree logo. Free guides, tools and templates to help Airbnb and VRBO hosts earn more and get better reviews.';
+
+function layout({ title, description, pathname, body, active = '', scripts = [], bodyAttrs = '', image = SHARE_IMAGE, head = '' }) {
   const full = title ? `${title} | HomeTree` : 'HomeTree | Grow a better rental';
   const url = SITE_URL + pathname;
   const navLink = ([l, h, ico], i) => `<a href="${h}" ${active === h ? 'aria-current="page"' : ''} ${ico === 'gift' ? 'class="feature"' : ''}><span class="ico">${icon(ico)}</span>${l}</a>`;
@@ -118,7 +123,11 @@ function layout({ title, description, pathname, body, active = '', scripts = [],
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${esc(image)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">${image === SHARE_IMAGE ? `
+<meta property="og:image:alt" content="${esc(SHARE_ALT)}">` : ''}
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${esc(image)}">
 <link rel="icon" href="/assets/favicon.png" type="image/png">
 <link rel="icon" href="/assets/mark-green.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -378,7 +387,7 @@ for (const g of GUIDES) {
   <div class="sheet-foot"><button class="btn btn-secondary" type="button" data-close-sheet>Close</button><button class="btn btn-primary" type="button" data-close-sheet id="sheet-apply">Show items</button></div>
 </div>
 <script type="application/json" id="products-data">${JSON.stringify(PRODUCTS).replace(/</g, '\\u003c')}</script>`;
-  page('/gear/', { title: 'Gear: stock your rental', description: 'Recommended furnishings and supplies for Airbnb and VRBO rentals, sorted by room, price and why guests notice them.', body, active: '/gear/', scripts: ['gear.js'], image: ph('kitchen3', 1200) + '&h=630' });
+  page('/gear/', { title: 'Gear: stock your rental', description: 'Recommended furnishings and supplies for Airbnb and VRBO rentals, sorted by room, price and why guests notice them.', body, active: '/gear/', scripts: ['gear.js'] });
 }
 
 // ---------- Tools ----------
@@ -396,7 +405,7 @@ for (const g of GUIDES) {
   <div style="display:grid;gap:14px"><span class="eyebrow">Coming next</span><h2>More tools on the way</h2><p class="lead">A setup budget planner that builds your furnishing list room by room, a photo shot list builder and a message builder. Subscribe and we'll tell you when they're live.</p></div>
   <div class="form-card">${signupForm({ source: 'tools-index', button: 'Notify me', id: 'ti' })}</div>
 </div></section>`;
-  page('/tools/', { title: 'Tools', description: 'Free calculators for Airbnb hosts: revenue and profit, cleaning fee, and monthly restock list.', body, active: '/tools/', image: ph('plants', 1200) + '&h=630' });
+  page('/tools/', { title: 'Tools', description: 'Free calculators for Airbnb hosts: revenue and profit, cleaning fee, and monthly restock list.', body, active: '/tools/' });
 
   const numField = (id, label, val, { prefix = '', suffix = '', hint = '', step = 1, min = 0, full = false } = {}) => `<div class="field${full ? ' full' : ''}"><label for="${id}">${label}</label><div class="input-wrap${prefix ? ' has-prefix' : ''}${suffix ? ' has-suffix' : ''}">${prefix ? `<span class="prefix">${prefix}</span>` : ''}<input class="input" id="${id}" type="number" inputmode="decimal" value="${val}" min="${min}" step="${step}">${suffix ? `<span class="suffix">${suffix}</span>` : ''}</div>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
   const rangeField = (id, label, val, min, max, unit = '') => `<div class="range-field full"><div class="top"><label class="label" for="${id}">${label}</label><output for="${id}">${val}${unit}</output></div><input type="range" id="${id}" min="${min}" max="${max}" value="${val}" data-unit="${unit}"></div>`;
@@ -568,7 +577,7 @@ for (const g of GUIDES) {
     <div class="form-card">${signupForm({ source: 'free-guide', button: 'Send me the guide', name: true, hosting: true, id: 'fg', success: "You're on the list. The guide is on its way to your inbox." })}</div>
   </div>
 </div>`;
-  page('/free-guide/', { title: 'Free host playbook', description: 'Get the free HomeTree host playbook: increase STR revenue, get better reviews, impress guests, manage cleaners and furnish your rental.', body, active: '/free-guide/', image: ph('bedroom3', 1200) + '&h=630' });
+  page('/free-guide/', { title: 'Free host playbook', description: 'Get the free HomeTree host playbook: increase STR revenue, get better reviews, impress guests, manage cleaners and furnish your rental.', body, active: '/free-guide/' });
 }
 
 // ---------- About, privacy, disclosure, 404 ----------
