@@ -1,0 +1,6 @@
+node_modules
+dist
+.netlify
+.pack
+src/js/icons.js
+scripts/products.csv
